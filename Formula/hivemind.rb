@@ -3,25 +3,32 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.7/hivemind-0.1.7-py3-none-any.whl"
-  sha256 "14327d56e62a4084ac2cc07845bc0e98a9a51e62bf8ce712b478e27cd16570f9"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.8/hivemind-0.1.8-py3-none-any.whl"
+  sha256 "50d6f29ece19d33a5d2e9a8a5163891d09f59107b8f537aa9cb2cbc854f2df19"
   license "MIT"
 
   depends_on "python@3.13"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.7/agentstream-0.1.7-py3-none-any.whl"
-    sha256 "37f8f2ab8e43cf521afe843da9f18b2a5ea59f334eac1fe2fd5cf5357d39ffa6"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.8/agentstream-0.1.8-py3-none-any.whl"
+    sha256 "7e2952dda3561bc93b3c23a35bd247ea5f585726c3e0bc16e2e249818b964caf"
   end
 
   def install
     venv = virtualenv_create(libexec, "python3.13")
+    venv_python = libexec/"bin/python"
 
+    # Install agentstream first (hivemind depends on it)
     resource("agentstream").stage do
-      venv.pip_install Dir["*.whl"].first
+      system "python3.13", "-m", "pip",
+             "--python=#{venv_python}",
+             "install", Dir["*.whl"].first
     end
 
-    venv.pip_install Dir["*.whl"].first
+    # Install hivemind with all its dependencies from PyPI
+    system "python3.13", "-m", "pip",
+           "--python=#{venv_python}",
+           "install", Dir["*.whl"].first
 
     bin.install_symlink libexec/"bin/hivemind"
   end
