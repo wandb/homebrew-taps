@@ -3,15 +3,15 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.8/hivemind-0.1.8-py3-none-any.whl"
-  sha256 "50d6f29ece19d33a5d2e9a8a5163891d09f59107b8f537aa9cb2cbc854f2df19"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.9/hivemind-0.1.9-py3-none-any.whl"
+  sha256 "71ba1f94835a8e07a54e87f998e55c6b73db8b5b36f2e74c8bf021a964689acb"
   license "MIT"
 
   depends_on "python@3.13"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.8/agentstream-0.1.8-py3-none-any.whl"
-    sha256 "7e2952dda3561bc93b3c23a35bd247ea5f585726c3e0bc16e2e249818b964caf"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.9/agentstream-0.1.9-py3-none-any.whl"
+    sha256 "88616c64aa5a750b26be407d5f3bba0678ba51952224f3f84e91fd81d8aba47f"
   end
 
   def install
@@ -36,25 +36,28 @@ class Hivemind < Formula
   def post_install
     system bin/"hivemind", "auth-check", "--quiet"
 
-    if $?.success?
-      system "brew", "services", "start", "hivemind"
-      ohai "Hivemind daemon started successfully"
-    else
+    unless $?.success?
       opoo <<~EOS
-        Could not authenticate automatically.
+        GitHub authentication not configured.
 
         The daemon requires GitHub authentication. Please run:
           gh auth login
-
-        Then start the service:
-          brew services start hivemind
       EOS
     end
+
+    ohai <<~EOS
+      To start the hivemind daemon:
+        brew services start hivemind
+
+      Or run manually:
+        hivemind run
+    EOS
   end
 
   service do
     run [opt_bin/"hivemind", "run"]
     keep_alive true
+    environment_variables HIVEMIND_LOG_FILE: var/"log/hivemind.log"
     log_path var/"log/hivemind.log"
     error_log_path var/"log/hivemind.err"
   end
