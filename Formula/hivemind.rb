@@ -3,15 +3,15 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.9/hivemind-0.1.9-py3-none-any.whl"
-  sha256 "71ba1f94835a8e07a54e87f998e55c6b73db8b5b36f2e74c8bf021a964689acb"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.2.0/hivemind-0.2.0-py3-none-any.whl"
+  sha256 "12ad9d8a009f6005e929188c94bea0170c9f42362ff87eaea4ee223d0fc1a237"
   license "MIT"
 
   depends_on "python@3.13"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.1.9/agentstream-0.1.9-py3-none-any.whl"
-    sha256 "88616c64aa5a750b26be407d5f3bba0678ba51952224f3f84e91fd81d8aba47f"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.2.0/agentstream-0.2.0-py3-none-any.whl"
+    sha256 "bb1a57d1fb5e2685a13250f3be7d5de4825617a5adfe489ad558d02731bc8f47"
   end
 
   def install
@@ -55,8 +55,10 @@ class Hivemind < Formula
   end
 
   service do
+    name macos: "com.wandb.hivemind"
     run [opt_bin/"hivemind", "run"]
     keep_alive true
+    working_dir var
     environment_variables HIVEMIND_LOG_FILE: var/"log/hivemind.log"
     log_path var/"log/hivemind.log"
     error_log_path var/"log/hivemind.err"
