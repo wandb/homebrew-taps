@@ -3,15 +3,15 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.1/hivemind-0.3.1-py3-none-any.whl"
-  sha256 "2439fe36edb25db416eddb75dcc4b45740107bc197283f427b0b887e0d366228"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.2/hivemind-0.3.2-py3-none-any.whl"
+  sha256 "019f41524170ea75bec04090795f5fbde46107f2bb0a4ff80bb8b2642a6e9920"
   license "MIT"
 
   depends_on "python@3.13"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.1/agentstream-0.3.1-py3-none-any.whl"
-    sha256 "06b61d30dbb645efd903eeb355ae62e3e764b9f155c23b42d89df870f2ae7583"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.2/agentstream-0.3.2-py3-none-any.whl"
+    sha256 "ae83b92c07076108ce64d949b8522f7fc1d59d9440c9dee57aca534a4e9f2cb8"
   end
 
   def install
@@ -34,24 +34,10 @@ class Hivemind < Formula
   end
 
   def post_install
-    # Check authentication silently
-    system bin/"hivemind", "auth-check", "--quiet"
-
-    unless $?.success?
-      opoo <<~EOS
-        GitHub authentication not configured.
-        Run: gh auth login
-      EOS
-    end
-
-    # Check if service is running (upgrade scenario)
-    plist_path = Pathname.new("#{Dir.home}/Library/LaunchAgents/com.wandb.hivemind.plist")
-    if plist_path.exist?
-      output = Utils.popen_read("launchctl", "list") rescue ""
-      if output.include?("com.wandb.hivemind")
-        ohai "Restart the service to apply the update: brew services restart wandb/taps/hivemind"
-      end
-    end
+    # Note: We intentionally skip auth-check here because it can trigger
+    # credential migration which breaks a still-running older daemon.
+    # Users will be prompted to authenticate when they start the service.
+    true
   end
 
   def caveats
@@ -75,6 +61,7 @@ class Hivemind < Formula
     environment_variables HIVEMIND_LOG_FILE: var/"log/hivemind.log"
     log_path var/"log/hivemind.log"
     error_log_path var/"log/hivemind.err"
+    restart_service :changed
   end
 
   test do
