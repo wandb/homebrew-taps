@@ -34,10 +34,11 @@ class Hivemind < Formula
   end
 
   def post_install
-    # Note: We intentionally skip auth-check here because it can trigger
-    # credential migration which breaks a still-running older daemon.
-    # Users will be prompted to authenticate when they start the service.
-    true
+    # Check if service is running and prompt for restart
+    plist_path = Pathname.new("#{Dir.home}/Library/LaunchAgents/com.wandb.hivemind.plist")
+    if plist_path.exist?
+      ohai "Service installed. Restart to apply update: brew services restart wandb/taps/hivemind"
+    end
   end
 
   def caveats
@@ -61,7 +62,6 @@ class Hivemind < Formula
     environment_variables HIVEMIND_LOG_FILE: var/"log/hivemind.log"
     log_path var/"log/hivemind.log"
     error_log_path var/"log/hivemind.err"
-    restart_service :changed
   end
 
   test do
