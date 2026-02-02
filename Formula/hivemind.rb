@@ -3,19 +3,23 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.2/hivemind-0.3.2-py3-none-any.whl"
-  sha256 "019f41524170ea75bec04090795f5fbde46107f2bb0a4ff80bb8b2642a6e9920"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.3/hivemind-0.3.3-py3-none-any.whl"
+  sha256 "4136424149fc37ce67906f6d622f44c525411e785ee33f5cfcd3efedd15341b1"
   license "MIT"
 
+  # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
   depends_on "python@3.13"
+  depends_on "pydantic" => ">= 2.0"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.2/agentstream-0.3.2-py3-none-any.whl"
-    sha256 "ae83b92c07076108ce64d949b8522f7fc1d59d9440c9dee57aca534a4e9f2cb8"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.3/agentstream-0.3.3-py3-none-any.whl"
+    sha256 "4e973e975ec0b5f98e34da60fc607c769a6cdab9804b4c29ca4ca24797edfb8f"
   end
 
   def install
-    venv = virtualenv_create(libexec, "python3.13", system_site_packages: false)
+    # Use system_site_packages to access Homebrew's pydantic (which has
+    # pre-built bottles that don't cause relocation errors)
+    venv = virtualenv_create(libexec, "python3.13", system_site_packages: true)
     venv_python = libexec/"bin/python"
 
     # Install agentstream first (hivemind depends on it)
