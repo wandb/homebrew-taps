@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.5/hivemind-0.3.5-py3-none-any.whl"
-  sha256 "1b435b2bf91ba7678aaa5c1ebd9769e86862ef875ad52494047e2ba4c92a65c0"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.6/hivemind-0.3.6-py3-none-any.whl"
+  sha256 "10a8cc4f525358de9ab3b93d5e5e434d07dcec5e5591272ad5cb3e757102bf16"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -12,8 +12,8 @@ class Hivemind < Formula
   depends_on "pydantic" => ">= 2.0"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.5/agentstream-0.3.5-py3-none-any.whl"
-    sha256 "881f0ba06e0173627c6bd1dbb1b40f2e50f559361593fb31159082e5b4ebb8a8"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.6/agentstream-0.3.6-py3-none-any.whl"
+    sha256 "87ec5f0d354ebff1565d61e66c29d3dc87758a120576ab7580ee54a57a2cf632"
   end
 
   def install
