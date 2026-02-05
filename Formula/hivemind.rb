@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.8/hivemind-0.3.8-py3-none-any.whl"
-  sha256 "a587a834bcd4c00954f9e19b5860c8612f30bd7e3c65a361a6654cd748011e48"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.9/hivemind-0.3.9-py3-none-any.whl"
+  sha256 "f7843e60396f40b4e72f4a1d5942f9c556606e649c30a03c2924832c0f821dac"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -12,8 +12,8 @@ class Hivemind < Formula
   depends_on "pydantic" => ">= 2.0"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.8/agentstream-0.3.8-py3-none-any.whl"
-    sha256 "4697d53c3f28725b4199dc70feddf30048ec0ba563b3cf50ccafbebf90a4ec9d"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.9/agentstream-0.3.9-py3-none-any.whl"
+    sha256 "fd9f16083dd0f9b825bd9db5a9ec24716d52093dbda12e8c9ae844e35b6c1724"
   end
 
   def install
@@ -21,6 +21,18 @@ class Hivemind < Formula
     # pre-built bottles that don't cause relocation errors)
     venv = virtualenv_create(libexec, "python3.13", system_site_packages: true)
     venv_python = libexec/"bin/python"
+
+    # Uninstall old hivemind/agentstream from system Python if present.
+    # Older formula versions (< 0.3.3) used venv.pip_install which could
+    # leave packages in the system site-packages. With system_site_packages
+    # enabled, those stale packages shadow the virtualenv versions and cause
+    # the daemon to run old code despite showing the new version number.
+    %w[hivemind agentstream].each do |pkg|
+      if quiet_system("python3.13", "-m", "pip", "show", "--quiet", pkg)
+        ohai "Removing stale #{pkg} from system site-packages"
+        system "python3.13", "-m", "pip", "uninstall", "--yes", "--quiet", pkg
+      end
+    end
 
     # Install agentstream first (hivemind depends on it)
     resource("agentstream").stage do
