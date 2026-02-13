@@ -3,17 +3,17 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.10/hivemind-0.3.10-py3-none-any.whl"
-  sha256 "776af1db3bb76a89290be5d50d864f6fbef9507d81edf80ed3029140fc1e0f83"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.0/wandb_hivemind-0.4.0-py3-none-any.whl"
+  sha256 "74bdbf77745af318e707f72bbe1e945cbbe31e8234be5b025c15164fa1ace47f"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
   depends_on "python@3.13"
-  depends_on "pydantic" => ">= 2.0"
+  depends_on "pydantic"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.3.10/agentstream-0.3.10-py3-none-any.whl"
-    sha256 "4356ad3b340e1cadf71b4081f150fd794713113dfe2b0b81bfe47be9a5a5fa1a"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.0/wandb_agentstream-0.4.0-py3-none-any.whl"
+    sha256 "8d072a55b4f38e293da425cc9c3f719242b60ea4974e1a15f93b899e94e0fee8"
   end
 
   def install
@@ -27,7 +27,7 @@ class Hivemind < Formula
     # leave packages in the system site-packages. With system_site_packages
     # enabled, those stale packages shadow the virtualenv versions and cause
     # the daemon to run old code despite showing the new version number.
-    %w[hivemind agentstream].each do |pkg|
+    %w[hivemind agentstream wandb-hivemind wandb-agentstream].each do |pkg|
       if quiet_system("python3.13", "-m", "pip", "show", "--quiet", pkg)
         ohai "Removing stale #{pkg} from system site-packages"
         system "python3.13", "-m", "pip", "uninstall", "--yes", "--quiet", pkg
@@ -62,8 +62,15 @@ class Hivemind < Formula
       To start hivemind now and restart at login:
         brew services start wandb/taps/hivemind
 
-      Or run manually:
-        hivemind run
+      Or, to run manually:
+        hivemind start
+
+      Management commands:
+        hivemind status    # Check daemon status
+        hivemind stop      # Stop the daemon
+        hivemind restart   # Restart the daemon
+        hivemind logs      # View daemon logs
+        hivemind doctor    # Diagnose issues
 
       Note: Use the fully-qualified formula name (wandb/taps/hivemind) to avoid
       conflicts with the unrelated 'hivemind' package in homebrew-core.
@@ -71,7 +78,7 @@ class Hivemind < Formula
   end
 
   service do
-    name macos: "com.wandb.hivemind"
+    name macos: "com.wandb.hivemind", linux: "hivemind"
     run [opt_bin/"hivemind", "run"]
     keep_alive true
     working_dir var
