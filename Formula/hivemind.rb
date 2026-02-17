@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.0/wandb_hivemind-0.4.0-py3-none-any.whl"
-  sha256 "74bdbf77745af318e707f72bbe1e945cbbe31e8234be5b025c15164fa1ace47f"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.1/wandb_hivemind-0.4.1-py3-none-any.whl"
+  sha256 "571a81f38135b63dbc8de316fa84508300979f59d4b7bd693ff5263a38935422"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -12,8 +12,8 @@ class Hivemind < Formula
   depends_on "pydantic"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.0/wandb_agentstream-0.4.0-py3-none-any.whl"
-    sha256 "8d072a55b4f38e293da425cc9c3f719242b60ea4974e1a15f93b899e94e0fee8"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.1/wandb_agentstream-0.4.1-py3-none-any.whl"
+    sha256 "e2df22ec2e94cfa48becceb5325c73d2b3c12e9e76fc05242c7a5b0e6e7236a3"
   end
 
   def install
@@ -50,27 +50,15 @@ class Hivemind < Formula
   end
 
   def post_install
-    # Check if service is running and prompt for restart
-    plist_path = Pathname.new("#{Dir.home}/Library/LaunchAgents/com.wandb.hivemind.plist")
-    if plist_path.exist?
-      ohai "Service installed. Restart to apply update: brew services restart wandb/taps/hivemind"
-    end
+    # Print dynamic post-install summary (auth check, health, service guidance).
+    # The --post-install flag produces user-friendly output and always exits 0
+    # so it never fails the brew install/upgrade.
+    system opt_bin/"hivemind", "doctor", "--post-install"
   end
 
   def caveats
     <<~EOS
-      To start hivemind now and restart at login:
-        brew services start wandb/taps/hivemind
-
-      Or, to run manually:
-        hivemind start
-
-      Management commands:
-        hivemind status    # Check daemon status
-        hivemind stop      # Stop the daemon
-        hivemind restart   # Restart the daemon
-        hivemind logs      # View daemon logs
-        hivemind doctor    # Diagnose issues
+      Run `hivemind doctor` for setup status and diagnostics.
 
       Note: Use the fully-qualified formula name (wandb/taps/hivemind) to avoid
       conflicts with the unrelated 'hivemind' package in homebrew-core.
