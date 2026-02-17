@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.1/wandb_hivemind-0.4.1-py3-none-any.whl"
-  sha256 "571a81f38135b63dbc8de316fa84508300979f59d4b7bd693ff5263a38935422"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.2/wandb_hivemind-0.4.2-py3-none-any.whl"
+  sha256 "dafd94bc2d978d5d2ba21c63195a85914fcf2bd6174612ca441967b6bc9f70b2"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -12,8 +12,8 @@ class Hivemind < Formula
   depends_on "pydantic"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.1/wandb_agentstream-0.4.1-py3-none-any.whl"
-    sha256 "e2df22ec2e94cfa48becceb5325c73d2b3c12e9e76fc05242c7a5b0e6e7236a3"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.2/wandb_agentstream-0.4.2-py3-none-any.whl"
+    sha256 "7cc774351b378abd278a408f6e8c9213da69bdb46e6511b6d2fd8e4a09e507b8"
   end
 
   def install
@@ -58,10 +58,13 @@ class Hivemind < Formula
 
   def caveats
     <<~EOS
-      Run `hivemind doctor` for setup status and diagnostics.
+      Run `hivemind restart` to pick up the new version.
 
-      Note: Use the fully-qualified formula name (wandb/taps/hivemind) to avoid
-      conflicts with the unrelated 'hivemind' package in homebrew-core.
+      Manage the daemon with:  hivemind start | stop | restart | status
+      Diagnostics:             hivemind doctor
+
+      Note: Use the fully-qualified tap name (wandb/taps/hivemind) for brew
+      commands to avoid conflicts with homebrew-core's unrelated 'hivemind'.
     EOS
   end
 
