@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.2/wandb_hivemind-0.4.2-py3-none-any.whl"
-  sha256 "dafd94bc2d978d5d2ba21c63195a85914fcf2bd6174612ca441967b6bc9f70b2"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.3/wandb_hivemind-0.4.3-py3-none-any.whl"
+  sha256 "c8fb452e7a93783c2d9bbf90a17d8050fd0278dbb20c698f1f01aaa4b7fdd8f0"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -12,8 +12,8 @@ class Hivemind < Formula
   depends_on "pydantic"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.2/wandb_agentstream-0.4.2-py3-none-any.whl"
-    sha256 "7cc774351b378abd278a408f6e8c9213da69bdb46e6511b6d2fd8e4a09e507b8"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.4.3/wandb_agentstream-0.4.3-py3-none-any.whl"
+    sha256 "a94471645bcc2d79e62cfb5a0b52c3be13c7930ae13028da55491b1d4eb50c5d"
   end
 
   def install
@@ -66,6 +66,18 @@ class Hivemind < Formula
       Note: Use the fully-qualified tap name (wandb/taps/hivemind) for brew
       commands to avoid conflicts with homebrew-core's unrelated 'hivemind'.
     EOS
+  end
+
+  def post_uninstall
+    %w[.claude .codex .cursor].each do |dir|
+      agent_file = Pathname.new(Dir.home) / dir / "agents" / "wandb-hivemind.md"
+      next unless agent_file.exist?
+      # Only remove if it's our file (contains our frontmatter marker)
+      content = agent_file.read rescue next
+      next unless content.include?("name: hivemind")
+      ohai "Removing @hivemind agent from ~/#{dir}/agents/"
+      agent_file.delete
+    end
   end
 
   service do
