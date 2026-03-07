@@ -9,7 +9,7 @@ HiveMind is a background daemon that syncs your AI coding sessions to the [HiveM
 
 AI coding agents generate session logs on your machine. HiveMind watches for those sessions, reads the raw log files, and ships them to our backend. You get a dashboard showing usage and costs across all your agents.
 
-The daemon doesn't try to be smart. It reads log entries from JSONL and SQLite files and uploads them as-is. Parsing and normalization happen server-side.
+The only processing hivemind performs on your machine is secret redaction. It reads log entries from JSONL and SQLite files, redacts any detected secrets, and uploads them. It's designed to be simple and resource efficient. Parsing and normalization happen server-side.
 
 ## How it works
 
@@ -25,7 +25,7 @@ The daemon doesn't try to be smart. It reads log entries from JSONL and SQLite f
 │  (raw session logs) │       │                          │
 └─────────────────────┘       │  Serves a dashboard      │
          hivemind             └──────────────────────────┘
-      reads + uploads
+reads + redacts + uploads
 ```
 
 The daemon picks up agent sessions on your machine and uploads raw log entries. The backend normalizes them into [AG-UI events](https://docs.ag-ui.com/concepts/events), stores them in ClickHouse, and serves the dashboard.
@@ -38,7 +38,7 @@ hivemind start
 ```
 
 > [!CAUTION]
-> There's an unrelated `hivemind` package in homebrew-core, be sure to use the full tap name:
+> There's an unrelated `hivemind` package in homebrew-core, be sure to use the full tap name.
 
 To upgrade:
 
@@ -72,9 +72,9 @@ Once started and authenticated, the daemon finds and syncs sessions every 30 sec
 > [!TIP]
 > The first time Hivemind is started, historic sessions from the last 90 days are synced.  Run `hivemind config set import.max_age_days 30` before running start to re-configure.
 
-## Hivemind CLI & Agent
+## HiveMind CLI & Agent
 
-Hivemind also provides a CLI and automatically installs a custom sub-agent (`@hivemind`) that knows how to use the CLI to provide historic sessions as context in coding sessions.
+HiveMind also provides a CLI and automatically installs a custom sub-agent (`@hivemind`) that knows how to use the CLI to provide historic sessions as context in coding sessions.
 
 ```bash
 hivemind search "file:cli.py"  # Find historic sessions that edited cli.py
