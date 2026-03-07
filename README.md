@@ -9,12 +9,10 @@ HiveMind is a background daemon that syncs your AI coding sessions to the [HiveM
 
 AI coding agents generate session logs on your machine. HiveMind watches for those sessions, reads the raw log files, and ships them to our backend. You get a dashboard showing usage and costs across all your agents.
 
-The only processing hivemind performs on your machine is secret redaction. It reads log entries from JSONL and SQLite files, redacts any detected secrets, and uploads them. It's designed to be simple and resource efficient. Parsing and normalization happen server-side.
-
 ## How it works
 
 ```
-      Your machine                  Hivemind Backend
+      Your machine                  HiveMind Backend
 ┌─────────────────────┐       ┌──────────────────────────┐
 │                     │       │                          │
 │  Claude Code        │       │  Normalizes sessions     │
@@ -23,12 +21,14 @@ The only processing hivemind performs on your machine is secret redaction. It re
 │  Gemini             │       │  Stores them in          │
 │                     │       │  ClickHouse              │
 │  (raw session logs) │       │                          │
-└─────────────────────┘       │  Serves a dashboard      │
+└─────────────────────┘       │  Serves API & dashboard  │
          hivemind             └──────────────────────────┘
 reads + redacts + uploads
 ```
 
-The daemon picks up agent sessions on your machine and uploads raw log entries. The backend normalizes them into [AG-UI events](https://docs.ag-ui.com/concepts/events), stores them in ClickHouse, and serves the dashboard.
+The only processing hivemind performs on your machine is secret redaction. It reads log entries from JSONL and SQLite files, redacts any detected secrets, and uploads them. It's designed to be simple and resource efficient. Parsing and normalization happen server-side.
+
+The backend normalizes entries into [AG-UI events](https://docs.ag-ui.com/concepts/events), stores them in ClickHouse, and serves the API & dashboard.
 
 ## Installation
 
@@ -51,7 +51,7 @@ The restart matters -- after an upgrade, launchd will still be running the old b
 
 ## Authentication
 
-Hivemind attempts to auto-login using GitHub credentials found on your machine.  If no credentials are available, hivemind also provides an OAuth flow that can be manually initiated with `hivemind login --method device`.
+HiveMind attempts to auto-login using GitHub credentials found on your machine.  If no credentials are available, hivemind also provides an OAuth flow that can be manually initiated with `hivemind login --method device`.
 
 ## Daemon Commands
 
@@ -70,7 +70,7 @@ hivemind doctor         # Run diagnostics
 Once started and authenticated, the daemon finds and syncs sessions every 30 seconds.
 
 > [!TIP]
-> The first time Hivemind is started, historic sessions from the last 90 days are synced.  Run `hivemind config set import.max_age_days 30` before running start to re-configure.
+> The first time HiveMind is started, historic sessions from the last 90 days are synced.  Run `hivemind config set import.max_age_days 30` before running start to re-configure.
 
 ## HiveMind CLI & Agent
 
