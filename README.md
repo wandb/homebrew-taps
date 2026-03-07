@@ -7,7 +7,7 @@ HiveMind is a background daemon that syncs your AI coding sessions to the [HiveM
 
 ## What it does
 
-AI coding agents generate session logs on your machine. HiveMind watches for those sessions, reads the raw log files, and ships them to our backend. You get a dashboard showing usage and costs across all your agents.
+AI coding agents generate session logs on your machine. HiveMind watches for those sessions, reads the raw log files, and ships them to our backend. You get a dashboard showing usage and costs across all your agents.  You also get a CLI and API to analyze or inject historic session context.
 
 ## How it works
 
