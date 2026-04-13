@@ -49,6 +49,26 @@ hivemind restart
 
 The restart matters -- after an upgrade, launchd will still be running the old binary.
 
+### If Homebrew cannot clone the tap (HTTPS / authentication)
+
+`brew install` clones the tap over HTTPS. That can fail if GitHub credentials are not set up for HTTPS, or if your environment blocks or interferes with HTTPS access to GitHub. In those cases, add the tap with SSH instead (same tap and formula names as above; only the Git transport changes).
+
+Prerequisites: an [SSH key on your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) and access to the `wandb/homebrew-taps` repository.
+
+```bash
+brew tap wandb/taps git@github.com:wandb/homebrew-taps.git
+brew install wandb/taps/hivemind
+hivemind start
+```
+
+If you already added `wandb/taps` over HTTPS and want to switch the remote to SSH:
+
+```bash
+brew untap wandb/taps
+brew tap wandb/taps git@github.com:wandb/homebrew-taps.git
+brew install wandb/taps/hivemind
+```
+
 ## Authentication
 
 HiveMind attempts to auto-login using GitHub credentials found on your machine.  If no credentials are available, hivemind also provides an OAuth flow that can be manually initiated with `hivemind login --method device`.
