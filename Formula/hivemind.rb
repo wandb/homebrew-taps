@@ -3,17 +3,23 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.3/wandb_hivemind-0.6.3-py3-none-any.whl"
-  sha256 "683beef0700fd1e145624b8090e8e6b705ba827d61456820b1edee6e209668b6"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.4/wandb_hivemind-0.6.4-py3-none-any.whl"
+  sha256 "46fe821761ecc35038a00194ba6ab9d884cdccaf6e2690490a281b32897eb601"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
   depends_on "python@3.13"
+  # Both packages ship Rust .so dylibs whose Mach-O headers lack the pad room
+  # Homebrew's install_name_tool needs to rewrite @rpath into the Cellar path.
+  # Depending on the Homebrew bottles (built with -headerpad_max_install_names)
+  # lets pip see them via system_site_packages and skip reinstalling the wheels.
+  # rpds-py reaches us transitively via mcp -> jsonschema -> referencing.
   depends_on "pydantic"
+  depends_on "rpds-py"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.3/wandb_agentstream-0.6.3-py3-none-any.whl"
-    sha256 "f906221b12b9b662847ddb416c66e97841fa56d4397eba6ee692e1ce272ba40a"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.4/wandb_agentstream-0.6.4-py3-none-any.whl"
+    sha256 "0321b25566a605d841b72f08880458d922e8c8dd7839da45bd7fba35de02d16f"
   end
 
   def install
