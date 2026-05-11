@@ -1,6 +1,6 @@
 cask "hivemind-app" do
-  version "0.6.3"
-  sha256 arm: "1e7145671f889d8beff7892e768b4687b301e423aaedccaa94f6086c9878be6f"
+  version "0.6.4"
+  sha256 arm: "065765aea99fce2aa13bd3f10cbd1bdd2778ce7fc524a6fc9d61203133a6f937"
 
   url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v#{version}/hivemind-darwin-arm64"
   name "Hivemind"
