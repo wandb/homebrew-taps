@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.5/wandb_hivemind-0.6.5-py3-none-any.whl"
-  sha256 "a28f9ab1a109104c7019895797292766495e0123ea7438e2237f3706096175c2"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.6/wandb_hivemind-0.6.6-py3-none-any.whl"
+  sha256 "636ce43939caef8ea02536283dda1e024cb14787b952d37b3f3c65d1131164fa"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -18,8 +18,8 @@ class Hivemind < Formula
   depends_on "rpds-py"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.5/wandb_agentstream-0.6.5-py3-none-any.whl"
-    sha256 "5c6d5e0c5b51570fd38afbbaab02ac5069ec784784b7dc0a6339107ce1dc15d3"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v0.6.6/wandb_agentstream-0.6.6-py3-none-any.whl"
+    sha256 "3316d33209461099379b74f72a08e5110c2988e73cf2028043d286c3802fb1a4"
   end
 
   def install
@@ -63,7 +63,7 @@ class Hivemind < Formula
   end
 
   def caveats
-    <<~EOS
+    base = <<~EOS
       Run `hivemind restart` to pick up the new version.
 
       Manage the daemon with:  hivemind start | stop | restart | status
@@ -72,6 +72,27 @@ class Hivemind < Formula
       Note: Use the fully-qualified tap name (wandb/taps/hivemind) for brew
       commands to avoid conflicts with homebrew-core's unrelated 'hivemind'.
     EOS
+
+    pkg_active = File.exist?("/Library/LaunchAgents/com.wandb.hivemind.plist") &&
+                 File.exist?("/usr/local/hivemind/bin/hivemind")
+    if pkg_active
+      base += <<~WARN
+
+        ⚠ A managed Hivemind .pkg is installed at /usr/local/hivemind. Its
+          system LaunchAgent at /Library/LaunchAgents/com.wandb.hivemind.plist
+          owns the `com.wandb.hivemind` launchd label at every login (system
+          plists load before brew's user plist), so the formula's daemon is
+          dormant.
+
+          DO NOT run `brew services stop hivemind` — it bootouts by label and
+          will knock the managed-pkg daemon offline until your next reboot.
+          Either uninstall the formula (`brew uninstall wandb/taps/hivemind`)
+          or uninstall the managed pkg (`sudo /usr/local/hivemind/uninstall.sh`)
+          to converge on one supervisor.
+      WARN
+    end
+
+    base
   end
 
   def post_uninstall
