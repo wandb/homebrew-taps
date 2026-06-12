@@ -19,11 +19,12 @@ cask "wandb-hivemind" do
   # The daemon self-updates in place; `brew upgrade` is a no-op for this
   # cask unless --greedy is passed.
   auto_updates true
-  # Everything here installs a `hivemind` binary: the prerelease cask,
-  # homebrew-core's hivemind (unrelated Procfile process manager), and
-  # the legacy wandb/taps formula.
-  conflicts_with cask:    "wandb/taps/wandb-hivemind-prerelease",
-                 formula: ["hivemind", "wandb/taps/hivemind"]
+  # Cask conflicts_with only accepts cask:. The formula collisions —
+  # homebrew-core's hivemind (unrelated Procfile process manager) and
+  # the legacy wandb/taps/hivemind formula also install a `hivemind`
+  # binary — surface as a binary-link error at install time and are
+  # called out in the caveats.
+  conflicts_with cask: "wandb/taps/wandb-hivemind-prerelease"
   depends_on arch: :arm64
   depends_on macos: :big_sur
 
@@ -50,5 +51,9 @@ cask "wandb-hivemind" do
 
         hivemind status
         hivemind doctor
+
+    This cask cannot be installed alongside formulae that also provide
+    a `hivemind` command (homebrew-core's hivemind process manager, or
+    the legacy wandb/taps/hivemind formula) — uninstall those first.
   EOS
 end
