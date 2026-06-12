@@ -19,7 +19,11 @@ cask "wandb-hivemind" do
   # The daemon self-updates in place; `brew upgrade` is a no-op for this
   # cask unless --greedy is passed.
   auto_updates true
-  conflicts_with cask: "wandb/taps/wandb-hivemind-prerelease"
+  # Everything here installs a `hivemind` binary: the prerelease cask,
+  # homebrew-core's hivemind (unrelated Procfile process manager), and
+  # the legacy wandb/taps formula.
+  conflicts_with cask:    "wandb/taps/wandb-hivemind-prerelease",
+                 formula: ["hivemind", "wandb/taps/hivemind"]
   depends_on arch: :arm64
   depends_on macos: :big_sur
 
