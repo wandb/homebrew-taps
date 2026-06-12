@@ -1,6 +1,6 @@
 cask "wandb-hivemind" do
-  version "0.7.5"
-  sha256 arm: "0c136779104ea900e7716e46fe85dde7477297b66ba96914bcee708c7de7d3e1"
+  version "0.7.6"
+  sha256 arm: "b0be1a0e3424c075cbbc8868254a04a72ad57857e390349e3a9a7d55d94d9cb4"
 
   url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64",
       verified: "github.com/wandb/hivemind/"
@@ -22,13 +22,24 @@ cask "wandb-hivemind" do
   # Cask conflicts_with only accepts cask:. The formula collisions —
   # homebrew-core's hivemind (unrelated Procfile process manager) and
   # the legacy wandb/taps/hivemind formula also install a `hivemind`
-  # binary — surface as a binary-link error at install time and are
-  # called out in the caveats.
+  # binary — surface as a binary-link error at install time.
   conflicts_with cask: "wandb/taps/wandb-hivemind-prerelease"
   depends_on arch: :arm64
   depends_on macos: :sonoma
 
   binary "hivemind-darwin-arm64", target: "hivemind"
+
+  postflight do
+    # The Nuitka onefile binary extracts ~180 MB to ~/.cache on its
+    # first execution — several seconds of I/O better paid here than on
+    # the user's first command. Best-effort: never fail the install
+    # over it (e.g. offline Gatekeeper assessment).
+    system_command staged_path/"hivemind-darwin-arm64",
+                   args:         ["--version"],
+                   must_succeed: false,
+                   print_stdout: false,
+                   print_stderr: false
+  end
 
   # `hivemind start` registers this label; remove it with the binary so
   # launchd doesn't KeepAlive-respawn a deleted executable.
@@ -51,9 +62,5 @@ cask "wandb-hivemind" do
 
         hivemind status
         hivemind doctor
-
-    This cask cannot be installed alongside formulae that also provide
-    a `hivemind` command (homebrew-core's hivemind process manager, or
-    the legacy wandb/taps/hivemind formula) — uninstall those first.
   EOS
 end
