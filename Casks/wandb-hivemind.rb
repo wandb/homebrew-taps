@@ -26,7 +26,7 @@ cask "wandb-hivemind" do
   # called out in the caveats.
   conflicts_with cask: "wandb/taps/wandb-hivemind-prerelease"
   depends_on arch: :arm64
-  depends_on macos: :big_sur
+  depends_on macos: :sonoma
 
   binary "hivemind-darwin-arm64", target: "hivemind"
 
