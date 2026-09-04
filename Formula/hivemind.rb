@@ -3,8 +3,8 @@ class Hivemind < Formula
 
   desc "Syncs agentic coding sessions to Weights & Biases"
   homepage "https://github.com/wandb/agentstream-py"
-  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v1.0.7/wandb_hivemind-1.0.7-py3-none-any.whl"
-  sha256 "d9c441199271c35718e5729cdffcddda06616c25b0d4e216ed4019e1e0e5d41c"
+  url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v1.0.8/wandb_hivemind-1.0.8-py3-none-any.whl"
+  sha256 "a6f797ab0fa7d87ede5042ecde31bc909571cafd9663c78089d979851f5ce624"
   license "MIT"
 
   # Requires Python >= 3.13 (update formula when Homebrew moves to newer Python)
@@ -18,8 +18,8 @@ class Hivemind < Formula
   depends_on "rpds-py"
 
   resource "agentstream" do
-    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v1.0.7/wandb_agentstream-1.0.7-py3-none-any.whl"
-    sha256 "9b1170b1503cd31c5a0db80f646a07cdc70cb309c7f0575d06e9d7622870df2e"
+    url "https://github.com/wandb/homebrew-taps/releases/download/hivemind-v1.0.8/wandb_agentstream-1.0.8-py3-none-any.whl"
+    sha256 "7964d13d70d0e8de1267e72524851975e4a4f9fbece1ddd7cf9f4cbb98c4c0c5"
   end
 
   def install
@@ -99,11 +99,23 @@ class Hivemind < Formula
     %w[.claude .codex .cursor].each do |dir|
       agent_file = Pathname.new(Dir.home) / dir / "agents" / "wandb-hivemind.md"
       next unless agent_file.exist?
-      # Only remove if it's our file (contains our frontmatter marker)
+      # Only remove if it's our file (contains our frontmatter marker).
+      # Anchored: "name: hivemind" is a prefix of the skill's "name: hivemind-tag".
       content = agent_file.read rescue next
-      next unless content.include?("name: hivemind")
+      next unless content.match?(/^name: hivemind$/)
       ohai "Removing @hivemind agent from ~/#{dir}/agents/"
       agent_file.delete
+    end
+
+    %w[.claude .codex .cursor].each do |dir|
+      skill_dir = Pathname.new(Dir.home) / dir / "skills" / "hivemind-tag"
+      skill_file = skill_dir / "SKILL.md"
+      next unless skill_file.exist?
+      content = skill_file.read rescue next
+      next unless content.include?("name: hivemind-tag")
+      ohai "Removing hivemind-tag skill from ~/#{dir}/skills/"
+      skill_file.delete
+      skill_dir.rmdir if skill_dir.children.empty?
     end
   end
 
