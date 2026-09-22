@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0rc4",
+  "minimum_supported": "1.1.0rc4",
+  "released_at": "2026-09-22T01:01:29Z",
+  "rollout_percentage": 100,
+  "platforms": {
+    "darwin-arm64": {
+      "binary_url": "https://github.com/wandb/hivemind/releases/download/v1.1.0rc4/hivemind-darwin-arm64",
+      "binary_sha256": "8ffc8b334e484a64b960b60a98852420abaef8d2fe69666916739cadbc911d57",
+      "team_id": "5DTHBP38WM"
+    },
+    "linux-x86_64": {
+      "binary_url": "https://github.com/wandb/hivemind/releases/download/v1.1.0rc4/hivemind-linux-x86_64",
+      "binary_sha256": "c679b81cd85ab1ef172536f48fbbee4efebbf9cb0dde2b7db9f53aa723b70404"
+    },
+    "linux-arm64": {
+      "binary_url": "https://github.com/wandb/hivemind/releases/download/v1.1.0rc4/hivemind-linux-arm64",
+      "binary_sha256": "080f100071ba20605ece75953c242a9eacd3080971639be72fb2c370dd4d85ec"
+    }
+  }
+}
