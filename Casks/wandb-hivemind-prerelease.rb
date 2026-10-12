@@ -1,6 +1,6 @@
 cask "wandb-hivemind-prerelease" do
-  version "1.1.1rc1"
-  sha256 arm: "3b82db5bbb6d63ebd5eaf152ee40fcea167ae8eb02ae1efb32c657e97a636f21"
+  version "1.1.1rc2"
+  sha256 arm: "aad293e2845c7107f33036c2138d96921ab716a31c7b315ced391d4f342425dd"
 
   url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64",
       verified: "github.com/wandb/hivemind/"
