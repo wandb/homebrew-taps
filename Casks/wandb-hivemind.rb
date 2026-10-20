@@ -2,8 +2,7 @@ cask "wandb-hivemind" do
   version "1.1.1"
   sha256 arm: "ee91a9d45b44617732cb43266173ec9b900c0b0e160296fcd1439d7698c3b683"
 
-  url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64",
-      verified: "github.com/wandb/hivemind/"
+  url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64"
   name "W&B HiveMind"
   desc "Daemon that syncs AI coding sessions to a shared W&B dashboard"
   homepage "https://hivemind.wandb.tools/"
@@ -29,16 +28,22 @@ cask "wandb-hivemind" do
 
   binary "hivemind-darwin-arm64", target: "hivemind"
 
-  postflight do
+  postflight_steps do
     # The Nuitka onefile binary extracts ~180 MB to ~/.cache on its
     # first execution — several seconds of I/O better paid here than on
     # the user's first command. Best-effort: never fail the install
     # over it (e.g. offline Gatekeeper assessment).
-    system_command staged_path/"hivemind-darwin-arm64",
-                   args:         ["--version"],
-                   must_succeed: false,
-                   print_stdout: false,
-                   print_stderr: false
+    # Structured steps have a temporary HOME. Resolve the account's home
+    # through chdir so the warm-up populates the persistent cache.
+    run "/bin/sh",
+        args:           ["-c", 'HOME="$(pwd -P)" exec "$1" --version', "--",
+                         "{{staged_path}}/hivemind-darwin-arm64"],
+        chdir:          "~{{user}}",
+        must_succeed:   false,
+        print_stdout:   false,
+        print_stderr:   false,
+        writable_paths: [".cache"],
+        writable_base:  :home
   end
 
   # `hivemind start` registers this label; remove it with the binary so
