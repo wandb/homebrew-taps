@@ -1,9 +1,8 @@
 cask "wandb-hivemind-prerelease" do
-  version "1.1.1rc4"
-  sha256 arm: "3fb6255fb9637462fff7585ad12ef753db33d1014405354ed3eb04d9feeb2812"
+  version "1.1.2rc1"
+  sha256 arm: "ff42248f72ec1b5adc4521fa39ee76dd286f3e39528b1b6f68f505fd7220e49c"
 
-  url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64",
-      verified: "github.com/wandb/hivemind/"
+  url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64"
   name "W&B HiveMind (pre-release)"
   desc "Pre-release builds of the HiveMind daemon — for testing only"
   homepage "https://hivemind.wandb.tools/"
@@ -31,28 +30,42 @@ cask "wandb-hivemind-prerelease" do
 
   binary "hivemind-darwin-arm64", target: "hivemind"
 
-  postflight do
+  postflight_steps do
     # Marker pins the upgrade watcher to the prerelease manifest.
     # Without it, the daemon would silently slide back to stable on the
     # next stable release.
-    config_dir = "#{File.expand_path(ENV.fetch("XDG_CONFIG_HOME", "~/.config"))}/hivemind"
-    FileUtils.mkdir_p(config_dir)
-    File.write("#{config_dir}/install-method", <<~MARKER)
-      # Written by wandb-hivemind-prerelease cask postflight.
-      method = "brew-cask"
-      channel = "prerelease"
-      installed_at = "#{Time.now.utc.iso8601}"
-    MARKER
+    # XDG_CONFIG_HOME is resolved at install time, so the sandbox needs
+    # account-home write access for custom config directories there.
+    run "/bin/sh",
+        args:           ["-c", <<~'SH', "--"],
+          set -e
+          HOME="$(pwd -P)"; export HOME
+          config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/hivemind"
+          mkdir -p "$config_dir"
+          {
+            printf '%s\n' '# Written by wandb-hivemind-prerelease cask postflight.' \
+              'method = "brew-cask"' 'channel = "prerelease"'
+            printf 'installed_at = "%s"\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "$config_dir/install-method"
+        SH
+        chdir:          "~{{user}}",
+        writable_paths: ["~{{user}}"]
 
     # The Nuitka onefile binary extracts ~180 MB to ~/.cache on its
     # first execution — several seconds of I/O better paid here than on
     # the user's first command. Best-effort: never fail the install
     # over it (e.g. offline Gatekeeper assessment).
-    system_command staged_path/"hivemind-darwin-arm64",
-                   args:         ["--version"],
-                   must_succeed: false,
-                   print_stdout: false,
-                   print_stderr: false
+    # Structured steps have a temporary HOME. Resolve the account's home
+    # through chdir so the warm-up populates the persistent cache.
+    run "/bin/sh",
+        args:           ["-c", 'HOME="$(pwd -P)" exec "$1" --version', "--",
+                         "{{staged_path}}/hivemind-darwin-arm64"],
+        chdir:          "~{{user}}",
+        must_succeed:   false,
+        print_stdout:   false,
+        print_stderr:   false,
+        writable_paths: [".cache"],
+        writable_base:  :home
   end
 
   # `hivemind start` registers this label; remove it with the binary so
