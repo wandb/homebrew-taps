@@ -1,6 +1,6 @@
 cask "wandb-hivemind-prerelease" do
-  version "1.1.2rc1"
-  sha256 arm: "ff42248f72ec1b5adc4521fa39ee76dd286f3e39528b1b6f68f505fd7220e49c"
+  version "1.1.2rc2"
+  sha256 arm: "13664467515d5c572090a645a2feb42df685de4aa21d3563a99a929c9e4c4854"
 
   url "https://github.com/wandb/hivemind/releases/download/v#{version}/hivemind-darwin-arm64"
   name "W&B HiveMind (pre-release)"
@@ -28,6 +28,45 @@ cask "wandb-hivemind-prerelease" do
   depends_on arch: :arm64
   depends_on macos: :sonoma
 
+  # Homebrew's launchctl: uninstaller would also delete the managed pkg's
+  # /Library/LaunchAgents plist because both installs share this label.
+  generated_script "uninstall-launchagent.sh", content: <<~SH
+    #!/bin/sh
+    set -eu
+
+    label=com.wandb.hivemind
+    plist="$HOME/Library/LaunchAgents/$label.plist"
+    [ -f "$plist" ] || exit 0
+    program=$(/usr/libexec/PlistBuddy -c "Print :ProgramArguments:0" "$plist" 2>/dev/null) || exit 0
+    case "$program" in
+      /*) ;;
+      *) exit 0 ;;
+    esac
+    normalize() (
+      cd -P "$(dirname "$1")" || exit 1
+      printf '%s/%s' "$PWD" "$(basename "$1")"
+    )
+    program=$(normalize "$program" 2>/dev/null) || exit 0
+    links=0
+    while [ -L "$program" ]; do
+      [ "$links" -lt 16 ] || exit 0
+      target=$(readlink "$program" 2>/dev/null) || exit 0
+      case "$target" in
+        /*) program="$target" ;;
+        *) program="$(dirname "$program")/$target" ;;
+      esac
+      program=$(normalize "$program" 2>/dev/null) || exit 0
+      links=$((links + 1))
+    done
+    case "$program" in
+      */Caskroom/wandb-hivemind-prerelease/*) ;;
+      *) exit 0 ;;
+    esac
+    if [ ! -e "/Library/LaunchAgents/$label.plist" ]; then
+      /bin/launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+    fi
+    /bin/rm -f -- "$plist"
+  SH
   binary "hivemind-darwin-arm64", target: "hivemind"
 
   postflight_steps do
@@ -68,15 +107,12 @@ cask "wandb-hivemind-prerelease" do
         writable_base:  :home
   end
 
-  # `hivemind start` registers this label; remove it with the binary so
-  # launchd doesn't KeepAlive-respawn a deleted executable.
-  uninstall launchctl: "com.wandb.hivemind"
+  uninstall script: { executable: "uninstall-launchagent.sh" }
 
   # ~/.hivemind (credentials + sync state) is intentionally not zapped:
   # it is shared by the other install channels (pkg, script, uv tool).
   zap trash: [
     "~/.config/hivemind/install-method",
-    "~/Library/LaunchAgents/com.wandb.hivemind.plist",
     "~/Library/Logs/hivemind",
   ]
 
